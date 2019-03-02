@@ -2,16 +2,15 @@
 #include <vector>
 #include <algorithm>
 #include <math.h>
-#include <iostream>
 #include <fstream>
-#include <string>
+
 /***
  * @param Target Limit for Fib values
  * @return Sum of even numbers below target in fib sequence
  */
 
 std::vector<unsigned long long> generate_next_prime(std::vector<unsigned long long> primes) {
-    unsigned long long  start = primes[primes.size() - 1];
+    unsigned long long start = primes[primes.size() - 1];
     unsigned long long i = start;
     while (true) {
         i += 2;
@@ -54,21 +53,57 @@ std::vector<unsigned long long> get_primes(unsigned long long target) {
     return primes;
 }
 
-unsigned long long get_largest_prime(unsigned long long number) {
-    unsigned long long limit;
-    limit = std::sqrt(number);
-    std::vector<unsigned long long> primes = get_primes(limit);
-    unsigned long long largest_prime = 0;
-    for (std::vector<unsigned long long>::const_iterator i = primes.begin(); *i <= limit; ++i) {
-        if (number % *i == 0) {
-            largest_prime = *i;
+std::vector<unsigned long long> get_prime_factors(unsigned long long num, std::vector<unsigned long long> factors) {
+    std::vector<unsigned long long> primes = get_primes(num);
+
+
+    if (std::find(primes.begin(), primes.end(), num) != primes.end()) {
+        factors.push_back(num);
+        return factors;
+    }
+
+    for (std::vector<unsigned long long>::const_iterator i = primes.begin(); *i <= num; ++i) {
+        if (num % *i == 0) {
+            num = num / *i;
+            factors.push_back(*i);
+            return get_prime_factors(num, factors);
         }
     }
-    return largest_prime;
+    return factors;
+}
+
+void find_common_factors(std::vector<unsigned long long> factors, unsigned long long *common_factors) {
+    int mycount;
+    for (int i = 1; i < 21; ++i) {
+        mycount = std::count(factors.begin(), factors.end(), i);
+        if (*(common_factors + i) < mycount) {
+            *(common_factors + i) = mycount;
+        }
+
+    }
+
 }
 
 int main(int argc, char **argv) {
-    unsigned long long value = 600851475143;
-    std::cout << get_largest_prime(value) << std::endl;
+    unsigned long long common_factors[21] = {0};
+
+    std::vector<unsigned long long> factors;
+    find_common_factors(factors, common_factors);
+
+
+
+    for (int num = 2; num < 21; ++num) {
+        std::vector<unsigned long long> factors;
+        factors = get_prime_factors(num, factors);
+        find_common_factors(factors, common_factors);
+
+    }
+    unsigned long long product = 1;
+    for (int i = 1; i < 21; i++){
+        for (int power = 0; power < common_factors[i]; ++power) {
+            product = product * i;
+        }
+    }
+    std::cout << product;
     return 0;
 }
